@@ -20,7 +20,7 @@ This plugin provides same functionallity like Catalyst::Plugin::Wizard but in so
 Plain:
 
     # create new wizard
-    my $wizard = Catalyst::Wizard->new( $c ); 
+    my $wizard = Catalyst::Wizard->new( $c );
 
     # add steps for that wizard
     $wizard->add_steps( -detach => '/user/login', '/user/login_submit' );
@@ -43,7 +43,7 @@ With Catalyst::Action::Wizard and CatalystX::Wizarded:
     # or just mark wizard as 'goto_next'
     $c->wizard->goto_next;
 
-    # adding -last action in wizard (only one added, other 
+    # adding -last action in wizard (only one added, other
     # '-last' actions ignored). synonym for -default in C::P::W
     $c->wizard( -last => -redirect => '/logout' )->goto_next;
 
@@ -64,7 +64,7 @@ In TT:
     [%	# INCORRECT! may (and will) cause errors!
 	c.wizard.id_to_form %]
 
-In real application: 
+In real application:
     See L<there|CatalystX::Wizarded>.
 
 =head1 DESCRIPTION
@@ -98,12 +98,11 @@ package Catalyst::Wizard;
 
 use strict;
 use warnings;
+
 use Digest::MD5 qw(md5_hex);
-use Data::Dumper ();
 use URI;
 use URI::QueryParam;
 use Carp qw/cluck/;
-
 use Scalar::Util;
 
 
@@ -125,6 +124,7 @@ our $GOTO_NEXT = "wizard_goto_next\n";
 
 
 sub _dump {
+    require Data::Dumper;
     Data::Dumper->new(\@_)->Indent(1)->Terse(1)->Dump;
 }
 
@@ -153,11 +153,11 @@ sub new {
 
     DEBUG2 && cluck();
 
-    DEBUG2 && 
+    DEBUG2 &&
 	__PACKAGE__->info("new: $my_wizard_id "._dump([ (caller(0))[0..3] ]));
 
 
-    if (    $my_wizard_id 
+    if (    $my_wizard_id
 	&&  $my_wizard_id ne 'new'
     ) {
 	($my_wizard_id, my $step) = ($my_wizard_id =~ /([0-9a-zA-Z]{32})(?:_(\d+))?/);
@@ -171,7 +171,7 @@ sub new {
 	$self->check_step_number( $c, $step ) if defined $step;
 
     } else {
-	$self = { 
+	$self = {
 	    wizard_id	    => _create_wizard_id(),
 	    steps	    => [],
 	    step_number	    => 0,
@@ -228,7 +228,7 @@ sub _get_default_flags {
 Making steps from input of @args, passed from add_steps.
 You can redefine following functions to make it behave different:
 
-$self->_get_default_flags 
+$self->_get_default_flags
     returns default flags
 
 $self->_check_flags( \@args, \@new_steps, $step_ref, $flags )
@@ -290,15 +290,15 @@ sub _make_steps {
 		$step_path = shift @$step_args;
 	    }
 
-	    %$step_ref = (%$step_ref, 
+	    %$step_ref = (%$step_ref,
 		step_type   => $step_type,
 		path	    => $step_path,
 
-		ref $step_args ? 
+		ref $step_args ?
 		    (args => $step_args) :
 		    (),
 	    );
-	} 
+	}
 	elsif ( $step eq '-sub' || $step eq '-subfixed' ){
 	    my $step_type = $step;
 	    my $step_args = shift @args;
@@ -333,7 +333,7 @@ sub _make_steps {
 	    die "cannot handle tag $1" unless $self->can($step_type);
 
 	    next unless $self->$step_type( \@args, $step_ref, $flags );
-	} 
+	}
 
 	$self->_check_flags( \@args, \@new_steps, $step_ref, $flags );
 
@@ -342,7 +342,7 @@ sub _make_steps {
 
 	DEBUG2 && $self->info(qq/step is @{[ _dump($step_ref) ]}\n/);
 
-	if (	$self->_is_force_add_step(  \@args, \@new_steps, 
+	if (	$self->_is_force_add_step(  \@args, \@new_steps,
 					    $step_ref, $flags )
 	    ||	!exists $self->{steps_already_in_wizard}{ $step_ref->{hash} } ) {
 
@@ -410,7 +410,7 @@ Add steps from @args.
 
 =item I<< (-redirect => 'path') >> or I<'path'>
 
-Redirect to path. If '-redirect' is given, then no action wizard id will 
+Redirect to path. If '-redirect' is given, then no action wizard id will
 be append to the redirect URL. Use this for last actions in wizard.
 
 You can append any query parameters to 'path'.
@@ -496,7 +496,7 @@ sub _step_back {
     my $step_back   = delete $self->{step_back};
 
     my $path = $step_back->{path};
-    
+
     my $step_to_go;
 
     DEBUG && $self->info(_dump($step_back));
@@ -514,13 +514,13 @@ sub _step_back {
     DEBUG && $self->info("cant find step back") unless $step_to_go;
     return unless $step_to_go;
 
-    my (undef, $other) = 
-	grep { $_->{path} =~ m{^/?$path$} } 
+    my (undef, $other) =
+	grep { $_->{path} =~ m{^/?$path$} }
 	    reverse @{ $self->{steps} } [0..$self->{step_number} - 1];
 
     die "$other remain" if $other;
 
-    my %step_back = (%$step_to_go, 
+    my %step_back = (%$step_to_go,
 	step_type => $step_back->{type} || '-redirect');
     $step_back = \%step_back;
 
@@ -531,7 +531,7 @@ sub _step_back {
     return $step_back;
 }
 
-=head2 $wizard->uri_for_next 
+=head2 $wizard->uri_for_next
 
 Returns URI for next step in wizard (if that step is '-redirect').
 
@@ -617,7 +617,7 @@ sub back_to {
     DEBUG && $self->info( $path, $type );
 
     my $found_in_passed = do {
-	grep { $_->{path} =~ m{^/?$path$} } 
+	grep { $_->{path} =~ m{^/?$path$} }
 	    reverse @{ $self->{steps} } [0..$self->{step_number} - 1];
     };
 
@@ -658,7 +658,7 @@ sub perform_step {
 	$step_type =~ s/^-//; #THATS NOT SMILE!
 
 	$self->next_step;
-	
+
 	return $c->$step_type($step->{path}, $step->{args});
     }
 
@@ -698,11 +698,11 @@ sub _make_sub_wizard {
     $self->next_step;
     $new_wizard->add_steps(
 	-last => -redirect => $self->_get_full_path( $self->_step,
-	    { 
+	    {
 		append_wizard_step  => 1,
 		append_wizard_id    => 1,
-	    } 
-	) 
+	    }
+	)
     );
 
     $new_wizard->{no_add_step} = $step->{fixed};
@@ -743,13 +743,13 @@ sub _get_full_path {
 
     my ( $step, $options_ref ) = @_;
 
-    $options_ref ||= { 
+    $options_ref ||= {
 	append_wizard_step  => 0,
 	append_wizard_id    => 1,
     };
 
     exists $options_ref->{$_} or $options_ref->{$_} = $step->{$_}
-			foreach qw(append_wizard_step append_wizard_id);
+			foreach (qw(append_wizard_step append_wizard_id));
 
 
     my $uri = URI->new( $step->{path} );
@@ -758,12 +758,12 @@ sub _get_full_path {
     #die if ! $options_ref->{ append_wizard_id }  && $options_ref->{append_wizard_step};
 
     if ( $options_ref->{ append_wizard_id } ) {
-	my $wizard_id = 
+	my $wizard_id =
 	    $self->_get_wizard_id($options_ref->{append_wizard_step});
 
 	$uri->query_param_append( 'wid' => $wizard_id );
 
-	if (	exists $options_ref->{append_to_uri} 
+	if (	exists $options_ref->{append_to_uri}
 	    &&	ref $options_ref->{append_to_uri} eq 'HASH') {
 
 	    my $a = $options_ref->{append_to_uri};
@@ -790,9 +790,9 @@ sub check_step_number {
     DEBUG && $self->info(_dump($step));
 
     # forward step by redirect + append_wizard_step is ONLY
-    # if previous step (ie. from which redirection was) 
+    # if previous step (ie. from which redirection was)
     # IS redirection type
-    if (    $self->{step_number} + 1 == $step 
+    if (    $self->{step_number} + 1 == $step
 	&&  $self->{steps}[
 		$self->{step_number}
 	    ]->{step_type} eq '-redirect') {
@@ -802,7 +802,7 @@ sub check_step_number {
     }
 
     # back step is only for -redirect steps
-    if (    $self->{step_number} > $step 
+    if (    $self->{step_number} > $step
 	&&  $self->{steps}[$step]->{step_type} eq '-redirect' ) {
 	return $self->_force_dont_step_back if $self->{no_step_back};
 
@@ -853,13 +853,13 @@ sub id_to_form {
     my $self = shift;
 
     if ($self->{steps}[ $self->{step_number} ]->{uri_for_next}) {
-	return 
+	return
 	    '<input type="hidden" name="wid" value="' .
 	    $self->_get_wizard_id(1)
 	    . '"/>'."\n";
     }
 
-    $self->{"id_to_form"} ||= 
+    $self->{"id_to_form"} ||=
 	'<input type="hidden" name="wid" value="'.
 	$self->_get_wizard_id.
 	'"/>'."\n";
@@ -880,17 +880,17 @@ sub load {
     my ( $self, $c ) = @_;
 
     # all ok, can replace wizard in stash
-    if (    ! exists $c->stash->{wizard} 
+    if (    ! exists $c->stash->{wizard}
 	||  ! keys %{ $c->stash->{wizard} } ) {
 	$c->stash->{wizard} = $self->{stash};
     }
     # user first userd stash->wizard and only then
     # created wizard (by call of $c->wizard)
     # handle it
-    elsif ( 
-	      keys %{ $c->stash->{wizard} || {} } 
+    elsif (
+	      keys %{ $c->stash->{wizard} || {} }
 	&&  ! keys %{ $self->{stash} } ) {
-	
+
 	# use it as our own stash
 	$self->{stash} = $c->stash->{wizard};
     }
