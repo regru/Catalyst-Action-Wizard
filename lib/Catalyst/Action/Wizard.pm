@@ -22,14 +22,13 @@ package Catalyst::Action::Wizard;
 use strict;
 use warnings;
 
-
 use Catalyst::Action;
 use Catalyst::Wizard;
 use Catalyst::Utils;
-use Class::C3;
+use MRO::Compat;
 
 use Scalar::Util;
-use Data::Dumper;
+
 use base 'Catalyst::Action';
 
 our $VERSION = '0.008';
@@ -50,7 +49,7 @@ sub _new_wizard {
 
     Catalyst::Utils::ensure_class_loaded( $class );
 
-    Catalyst::Wizard::DEBUG && 
+    Catalyst::Wizard::DEBUG &&
 	Catalyst::Wizard->info( 'calling _new_wizard: '.$wizard_id );
 
     _current_wizard($c, $class->new( $c, $wizard_id ) );
@@ -99,13 +98,13 @@ sub wizard {
     my $self	= shift;
     my $c	= shift;
 
-    if ( @_ ) { 
+    if ( @_ ) {
 
-	if (	! _current_wizard( $c ) 
-	    &&	$_[0] eq '-last' 
+	if (	! _current_wizard( $c )
+	    &&	$_[0] eq '-last'
 	    && (
-			@_ == 3 
-		    ||	@_ == 2 
+			@_ == 3
+		    ||	@_ == 2
 	        ) ) {
 	    shift;
 
@@ -134,7 +133,7 @@ sub wizard {
 	}
 
 	_current_wizard($c)->add_steps(caller => [ caller ], @_);
-    } elsif(	! _current_wizard( $c ) 
+    } elsif(	! _current_wizard( $c )
 	    &&	_dont_create_if_empty( $c, caller() ) ) {
 	return bless \(my $a = ''), 'Catalyst::FakeWizard';
     }
@@ -149,13 +148,13 @@ sub execute {
     #warn "executing: $self";
 
     if ( $self->name eq '_BEGIN' ) {
-	my $wizard_id = $c->can('wizard_id') ? $c->wizard_id 
+	my $wizard_id = $c->can('wizard_id') ? $c->wizard_id
 	    : exists $c->req->params->{wid}  ? $c->req->params->{wid}
 	    : ''
 	    ;
 
 	my $wizard_id_without_step;
-	
+
 	if ( $wizard_id ) {
 	    ($wizard_id_without_step) = $wizard_id =~ /([0-9a-zA-Z]{32})/;
 	}
@@ -178,13 +177,13 @@ sub execute {
 	my $wizard = _current_wizard( $c );
 
 	if ($wizard
-	    &&	
+	    &&
 	    (
-		( 
-		    $@ 
-		 && $@ eq $Catalyst::Wizard::GOTO_NEXT 
-		) 
-		||  $wizard->{goto} 
+		(
+		    $@
+		 && $@ eq $Catalyst::Wizard::GOTO_NEXT
+		)
+		||  $wizard->{goto}
 	    ) ) {
 
 	    undef $@;
