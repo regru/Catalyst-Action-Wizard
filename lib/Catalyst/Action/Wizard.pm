@@ -1,19 +1,17 @@
-#===============================================================================
-#
-#         FILE:  Wizard.pm
-#
-#  DESCRIPTION:  Wizarded action.
-#
-#       AUTHOR:  Pavel Boldin (), <davinchi@cpan.ru>
-#      COMPANY:  Domain name registrar REG.RU
-#      CREATED:  21.06.2008 19:34:41 MSD
-#===============================================================================
-
 =head1 NAME
 
-Catalyst::Action::Wizard -- actions like realization of wizards. You need this
-if you have some multi-actions data gathering which unlikely to be saved
-in session and to big to pass them as POST or GET parameters.
+Catalyst::Action::Wizard
+
+=head1 DESCRIPTION
+
+Actions like realization of wizards. You need this
+if you have some multi-actions data gathering which unlikely
+to be saved in session and to big to pass them
+as POST or GET parameters.
+
+=head1 AUTHORS
+
+Pavel Boldin (), <davinchi@cpan.ru>
 
 =cut
 
@@ -61,15 +59,15 @@ sub _dont_create_if_empty {
 
     # check if not creating wizard in this caller package
     if ( my $re = $c->config->{wizard}{_ignore_empty_wizard_call_pkg_re} ) {
-        return 1 if $caller_pkg =~ $re;
+        return 1  if $caller_pkg =~ $re;
         return;
     }
 
-    return unless exists $c->config->{wizard}{ignore_empty_wizard_call_pkg};
+    return  unless exists $c->config->{wizard}{ignore_empty_wizard_call_pkg};
 
     my $config = $c->config->{wizard}{ignore_empty_wizard_call_pkg};
 
-    return unless ref $config  eq 'ARRAY';
+    return  unless ref $config  eq 'ARRAY';
 
     my @prefixes = grep { m/::$/o } @$config;
     my @packages = grep { m/\w$/o } @$config;
@@ -95,17 +93,18 @@ sub _dont_create_if_empty {
 }
 
 sub wizard {
-    my $self        = shift;
-    my $c        = shift;
+    my $self = shift;
+    my $c    = shift;
 
     if ( @_ ) {
 
-        if (        ! _current_wizard( $c )
+        if ( ! _current_wizard( $c )
             &&        $_[0] eq '-last'
             && (
-                        @_ == 3
-                    ||        @_ == 2
-                ) ) {
+                @_ == 3
+                || @_ == 2
+            )
+        ) {
             shift;
 
             my $step_type = 'redirect';
@@ -133,8 +132,9 @@ sub wizard {
         }
 
         _current_wizard($c)->add_steps(caller => [ caller ], @_);
-    } elsif(        ! _current_wizard( $c )
-            &&        _dont_create_if_empty( $c, caller() ) ) {
+    } elsif( ! _current_wizard( $c )
+            && _dont_create_if_empty( $c, caller() )
+    ) {
         return bless \(my $a = ''), 'Catalyst::FakeWizard';
     }
 
@@ -169,7 +169,7 @@ sub execute {
             _current_wizard( $c )->save( $c );
         }
 #        return;
-    } elsif ( not $self->name =~ /^_(?:ACTION|DISPATCH|AUTO)/ ) {
+    } elsif ( $self->name !~ /^_(?:ACTION|DISPATCH|AUTO)/ ) {
 
         my @ret = eval { $self->next::method(@_) };
 
@@ -181,11 +181,11 @@ sub execute {
             (
                 (
                     $@
-                 && $@ eq $Catalyst::Wizard::GOTO_NEXT
+                	&& $@ eq $Catalyst::Wizard::GOTO_NEXT
                 )
                 ||  $wizard->{goto}
-            ) ) {
-
+            )
+        ) {
             undef $@;
             $wizard->perform_step( $c );
         }
