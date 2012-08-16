@@ -1,21 +1,13 @@
-#===============================================================================
-#
-#         FILE:  Wizard.pm
-#  DESCRIPTION:  Catalyst::Wizard
-#
-#        FILES:  ---
-#         BUGS:  ---
-#        NOTES:  ---
-#       AUTHOR:  Pavel Boldin (), <davinchi@cpan.ru>
-#      COMPANY:  Domain name registrar http://www.reg.ru/
-#===============================================================================
-
 =head1 NAME
 
-This plugin provides same functionallity like Catalyst::Plugin::Wizard but in some more flexible and correct way.
+Catalyst::Wizard
+
+=head1 DESCRIPTION
+
+This plugin provides same functionallity like Catalyst::Plugin::Wizard
+but in some more flexible and correct way.
 
 =head1 SYNOPSIS
-
 
 Plain:
 
@@ -67,7 +59,7 @@ In TT:
 In real application:
     See L<there|CatalystX::Wizarded>.
 
-=head1 DESCRIPTION
+=head1 NOTES
 
 This module is for general wizard'ed actions. It may be used with CatalystX::Wizarded and along in separate realization (for example in Controller base)
 
@@ -82,15 +74,20 @@ When you need to move some items into another folder, you may:
 =over 4
 
 =item *
+
 keep current folders select in session (can have difficulties with duplicate selecting of same folder)
 
 =item *
+
 use it as wizard and keep that info in wizard's stash
 
 =back
 
 =back
 
+=head1 AUTHORS
+
+Pavel Boldin (), <davinchi@cpan.ru>
 
 =cut
 
